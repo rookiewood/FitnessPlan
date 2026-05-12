@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ernesto's Fitness Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f12;
+    --surface: #161a20;
+    --card: #1e242d;
+    --border: #2a3240;
+    --accent: #f97316;
+    --accent2: #38bdf8;
+    --green: #4ade80;
+    --text: #e8eaf0;
+    --muted: #8896aa;
+    --heading: 'Bebas Neue', sans-serif;
+    --body: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--body); font-size: 15px; min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #0d0f12 0%, #1a1f2e 50%, #0d1117 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 24px 20px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-label {
+    font-family: var(--body); font-size: 11px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--accent);
+    margin-bottom: 4px;
+  }
+  header h1 {
+    font-family: var(--heading); font-size: 38px; letter-spacing: 1px;
+    line-height: 1; color: var(--text);
+  }
+  header h1 span { color: var(--accent); }
+  .header-sub {
+    margin-top: 8px; font-size: 13px; color: var(--muted); font-weight: 400;
+  }
+  .stats-row {
+    display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap;
+  }
+  .stat-pill {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 14px;
+    font-size: 12px; color: var(--muted); font-weight: 500;
+  }
+  .stat-pill strong { color: var(--text); }
+
+  /* NAV TABS */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .tab-row {
+    display: flex; min-width: max-content; padding: 0 8px;
+  }
+  .tab {
+    padding: 14px 18px; font-size: 12px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: all 0.2s;
+    background: none; border-top: none; border-left: none; border-right: none;
+    font-family: var(--body);
+  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* SECTIONS */
+  .section { display: none; padding: 20px 16px 100px; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: var(--heading); font-size: 22px; letter-spacing: 0.5px;
+    color: var(--text); margin-bottom: 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title .icon { font-size: 20px; }
+  .card-subtitle {
+    font-size: 12px; color: var(--accent); font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .card p { color: var(--muted); line-height: 1.65; font-size: 14px; }
+
+  /* SECTION HEADINGS */
+  .section-title {
+    font-family: var(--heading); font-size: 32px; color: var(--text);
+    letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .section-intro {
+    font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6;
+  }
+
+  /* WORKOUT DAY */
+  .day-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; margin-bottom: 14px; overflow: hidden;
+  }
+  .day-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; cursor: pointer;
+    background: linear-gradient(90deg, var(--card) 0%, rgba(249,115,22,0.05) 100%);
+  }
+  .day-header:hover { background: linear-gradient(90deg, #222834 0%, rgba(249,115,22,0.08) 100%); }
+  .day-name {
+    font-family: var(--heading); font-size: 20px; letter-spacing: 0.5px;
+  }
+  .day-focus {
+    font-size: 11px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--accent); margin-top: 1px;
+  }
+  .day-chevron {
+    font-size: 18px; color: var(--muted); transition: transform 0.25s;
+  }
+  .day-card.open .day-chevron { transform: rotate(180deg); }
+  .day-body { display: none; padding: 0 16px 16px; }
+  .day-card.open .day-body { display: block; }
+
+  /* EXERCISE TABLE */
+  .ex-table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .ex-table th {
+    text-align: left; font-size: 10px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted);
+    padding: 8px 6px 6px; border-bottom: 1px solid var(--border);
+  }
+  .ex-table td {
+    padding: 10px 6px; font-size: 13px; border-bottom: 1px solid rgba(42,50,64,0.5);
+    vertical-align: top; line-height: 1.4;
+  }
+  .ex-table tr:last-child td { border-bottom: none; }
+  .ex-name { color: var(--text); font-weight: 500; }
+  .ex-note { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .ex-sets { color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .ex-tag {
+    display: inline-block; background: rgba(56,189,248,0.15);
+    color: var(--accent2); border-radius: 4px; padding: 1px 7px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    margin-top: 3px;
+  }
+  .ex-tag.green { background: rgba(74,222,128,0.12); color: var(--green); }
+
+  /* PULL-UP PROGRESSION */
+  .progress-week {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 12px;
+    position: relative; overflow: hidden;
+  }
+  .progress-week::before {
+    content: attr(data-week);
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    font-family: var(--heading); font-size: 64px; color: rgba(249,115,22,0.06);
+    line-height: 1; pointer-events: none;
+  }
+  .week-label {
+    font-family: var(--heading); font-size: 18px; color: var(--text); margin-bottom: 2px;
+  }
+  .week-goal { font-size: 12px; color: var(--accent); font-weight: 600; letter-spacing: 0.5px; }
+  .week-drills { margin-top: 10px; }
+  .drill-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 7px 0; border-bottom: 1px solid rgba(42,50,64,0.5); font-size: 13px;
+  }
+  .drill-item:last-child { border-bottom: none; }
+  .drill-bullet {
+    width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
+    flex-shrink: 0; margin-top: 5px;
+  }
+  .drill-text { color: var(--text); line-height: 1.5; }
+  .drill-text span { color: var(--muted); font-size: 12px; }
+
+  /* NUTRITION */
+  .macro-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; margin-bottom: 16px;
+  }
+  .macro-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 12px; text-align: center;
+  }
+  .macro-value {
+    font-family: var(--heading); font-size: 30px; color: var(--accent); line-height: 1;
+  }
+  .macro-unit { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .macro-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted); margin-top: 4px;
+  }
+  .macro-card.protein .macro-value { color: var(--accent); }
+  .macro-card.carbs .macro-value { color: var(--accent2); }
+  .macro-card.fat .macro-value { color: var(--green); }
+
+  .meal-block {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 12px;
+  }
+  .meal-time {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+  }
+  .meal-title {
+    font-family: var(--heading); font-size: 19px; color: var(--text); margin-bottom: 8px;
+  }
+  .food-list { list-style: none; }
+  .food-list li {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 5px 0; font-size: 13px; color: var(--muted);
+    border-bottom: 1px solid rgba(42,50,64,0.4);
+    line-height: 1.5;
+  }
+  .food-list li:last-child { border-bottom: none; }
+  .food-list li::before { content: '·'; color: var(--accent); font-size: 18px; line-height: 1; flex-shrink: 0; }
+
+  /* TIPS */
+  .tip-card {
+    background: var(--card); border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0; padding: 14px 16px; margin-bottom: 12px;
+  }
+  .tip-card.blue { border-left-color: var(--accent2); }
+  .tip-card.green { border-left-color: var(--green); }
+  .tip-title {
+    font-family: var(--heading); font-size: 18px; color: var(--text);
+    margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+  }
+  .tip-body { font-size: 13px; color: var(--muted); line-height: 1.65; }
+  .tip-body strong { color: var(--text); }
+
+  /* BADGE */
+  .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .badge-orange { background: rgba(249,115,22,0.15); color: var(--accent); }
+  .badge-blue { background: rgba(56,189,248,0.12); color: var(--accent2); }
+  .badge-green { background: rgba(74,222,128,0.12); color: var(--green); }
+
+  /* OVERVIEW GOALS */
+  .goal-list { display: flex; flex-direction: column; gap: 10px; }
+  .goal-item {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+  }
+  .goal-icon { font-size: 24px; flex-shrink: 0; }
+  .goal-text { font-size: 13px; color: var(--text); font-weight: 500; line-height: 1.4; }
+  .goal-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+  /* CALORIE BAR */
+  .calorie-display {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; margin-bottom: 16px; text-align: center;
+  }
+  .calorie-number {
+    font-family: var(--heading); font-size: 52px; color: var(--accent);
+    letter-spacing: 1px; line-height: 1;
+  }
+  .calorie-label { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
+  .calorie-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* SCHEDULE OVERVIEW */
+  .schedule-row { display: flex; flex-direction: column; gap: 8px; }
+  .sched-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+  }
+  .sched-day {
+    font-family: var(--heading); font-size: 16px; min-width: 36px; color: var(--muted);
+  }
+  .sched-bar {
+    flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .sched-fill { height: 100%; border-radius: 3px; }
+  .sched-type { font-size: 12px; font-weight: 600; color: var(--text); min-width: 110px; }
+
+  @media (max-width: 380px) {
+    header h1 { font-size: 32px; }
+    .macro-value { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Personal Program</div>
+  <h1>YOUR <span>FITNESS</span><br>BLUEPRINT</h1>
+  <p class="header-sub">Customized for a 48-year-old male · Goal: Strength + Definition</p>
+
+</header>
+
+<nav>
+  <div class="tab-row">
+    <button class="tab active" onclick="showTab('overview')">Overview</button>
+    <button class="tab" onclick="showTab('workout')">Workouts</button>
+    <button class="tab" onclick="showTab('pullups')">Pull-Ups</button>
+    <button class="tab" onclick="showTab('nutrition')">Nutrition</button>
+    <button class="tab" onclick="showTab('tips')">Tips</button>
+  </div>
+</nav>
+
+<!-- ========== OVERVIEW ========== -->
+<div id="overview" class="section active">
+  <p class="section-title">YOUR GOALS</p>
+  <p class="section-intro">Here's your personalized plan based on your current fitness level, lifestyle, and targets. Follow this consistently for 12 weeks to see significant changes.</p>
+
+  <div class="goal-list">
+    <div class="goal-item">
+      <div class="goal-icon">💪</div>
+      <div>
+        <div class="goal-text">10+ Pull-Ups</div>
+        <div class="goal-sub">From 1–2 reps → 10+ using progressive overload</div>
+      </div>
+    </div>
+    <div class="goal-item">
+      <div class="goal-icon">🏋️</div>
+      <div>
+        <div class="goal-text">Bigger Shoulders &amp; Upper Arms</div>
+        <div class="goal-sub">Targeted deltoid, bicep &amp; tricep hypertrophy</div>
+      </div>
+    </div>
+    <div class="goal-item">
+      <div class="goal-icon">🦵</div>
+      <div>
+        <div class="goal-text">Strong, Larger Legs</div>
+        <div class="goal-sub">Squats, Romanian deadlifts, lunges, leg press</div>
+      </div>
+    </div>
+    <div class="goal-item">
+      <div class="goal-icon">🧱</div>
+      <div>
+        <div class="goal-text">Rock-Solid Core</div>
+        <div class="goal-sub">Functional strength, not just crunches</div>
+      </div>
+    </div>
+    <div class="goal-item">
+      <div class="goal-icon">⚖️</div>
+      <div>
+        <div class="goal-text">Tone Up &amp; Lean Out</div>
+        <div class="goal-sub">Slight caloric deficit to shed fat while building muscle</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <p class="section-title">WEEKLY SCHEDULE</p>
+  <div class="schedule-row" style="margin-top:12px">
+    <div class="sched-item">
+      <div class="sched-day">MON</div>
+      <div class="sched-bar"><div class="sched-fill" style="width:90%;background:var(--accent)"></div></div>
+      <div class="sched-type">🏋️ Back + Biceps</div>
+    </div>
+    <div class="sched-item">
+      <div class="sched-day">TUE</div>
+      <div class="sched-bar"><div class="sched-fill" style="width:90%;background:var(--accent)"></div></div>
+      <div class="sched-type">🏋️ Chest + Triceps</div>
+    </div>
+    <div class="sched-item">
+      <div class="sched-day">WED</div>
+      <div class="sched-bar"><div class="sched-fill" style="width:35%;background:var(--accent2)"></div></div>
+      <div class="sched-type">🚶 Rest / Walk</div>
+    </div>
+    <div class="sched-item">
+      <div class="sched-day">THU</div>
+      <div class="sched-bar"><div class="sched-fill" style="width:90%;background:var(--accent)"></div></div>
+      <div class="sched-type">🏋️ Shoulders + Arms</div>
+    </div>
+    <div class="sched-item">
+      <div class="sched-day">FRI</div>
+      <div class="sched-bar"><div class="sched-fill" style="width:90%;background:var(--green)"></div></div>
+      <div class="sched-type">🦵 Legs + Core</div>
+    </div>
+    <div class="sched-item">
+      <div class="sched-day">SAT</div>
+      <div class="sched-bar"><div class="sched-fill" style="width:55%;background:var(--accent2)"></div></div>
+      <div class="sched-type">🥒 Pickleball / Cardio</div>
+    </div>
+    <div class="sched-item">
+      <div class="sched-day">SUN</div>
+      <div class="sched-bar"><div class="sched-fill" style="width:30%;background:var(--accent2)"></div></div>
+      <div class="sched-type">🐕 Dog Walk / Rest</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="card">
+    <div class="card-subtitle">Your Starting Point</div>
+    <div class="card-title"><span class="icon">📊</span> BMI &amp; Body Context</div>
+    <p>At 5'11" and 192 lbs your BMI is approximately <strong style="color:var(--text)">26.8</strong> — just slightly into the "overweight" range but well within normal for a muscular, active man. Your size-34 waist confirms you carry weight well. The goal is body recomposition: build muscle while trimming 8–12 lbs of body fat over 12–16 weeks. No crash dieting — this happens through progressive training and a modest caloric deficit.</p>
+  </div>
+</div>
+
+<!-- ========== WORKOUT ========== -->
+<div id="workout" class="section">
+  <p class="section-title">WORKOUT PLAN</p>
+  <p class="section-intro">4 days of lifting per week. Every session starts with 10 min cardio (treadmill 5–6.2 mph). Rest 60–90 sec between sets. Add weight when you can complete all sets with good form.</p>
+
+  <!-- Day 1 -->
+  <div class="day-card" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-name">MONDAY</div>
+        <div class="day-focus">Back · Biceps · Pull-Up Training</div>
+      </div>
+      <div class="day-chevron">▾</div>
+    </div>
+    <div class="day-body">
+      <span class="badge badge-orange" style="margin-bottom:10px;display:inline-block">🔥 Pull-Up Focus Day</span>
+      <table class="ex-table">
+        <thead><tr><th>Exercise</th><th>Sets × Reps</th></tr></thead>
+        <tbody>
+          <tr><td><div class="ex-name">Dead Hangs</div><div class="ex-note">Build grip strength &amp; lat engagement</div></td><td class="ex-sets">3 × 30s</td></tr>
+          <tr><td><div class="ex-name">Band-Assisted Pull-Ups</div><div class="ex-note">Full range of motion, control the descent</div><span class="ex-tag">KEY MOVE</span></td><td class="ex-sets">4 × 6–8</td></tr>
+          <tr><td><div class="ex-name">Lat Pulldown</div><div class="ex-note">Wide grip, chest-up, pull to collarbone</div></td><td class="ex-sets">3 × 10–12</td></tr>
+          <tr><td><div class="ex-name">Seated Cable Row</div><div class="ex-note">Squeeze shoulder blades together at peak</div></td><td class="ex-sets">3 × 10–12</td></tr>
+          <tr><td><div class="ex-name">Dumbbell Bicep Curl</div><div class="ex-note">Supinate wrist at top, full extension</div></td><td class="ex-sets">3 × 10–12</td></tr>
+          <tr><td><div class="ex-name">Hammer Curl</div><div class="ex-note">Targets brachialis for arm thickness</div></td><td class="ex-sets">3 × 10</td></tr>
+          <tr><td><div class="ex-name">Face Pulls</div><div class="ex-note">Rope attachment, external rotation at end</div><span class="ex-tag green">SHOULDER HEALTH</span></td><td class="ex-sets">3 × 15</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Day 2 -->
+  <div class="day-card" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-name">TUESDAY</div>
+        <div class="day-focus">Chest · Triceps · Core</div>
+      </div>
+      <div class="day-chevron">▾</div>
+    </div>
+    <div class="day-body">
+      <table class="ex-table">
+        <thead><tr><th>Exercise</th><th>Sets × Reps</th></tr></thead>
+        <tbody>
+          <tr><td><div class="ex-name">Flat Barbell / DB Bench Press</div><div class="ex-note">Plant feet, arch supported, full range</div><span class="ex-tag">KEY MOVE</span></td><td class="ex-sets">4 × 8–10</td></tr>
+          <tr><td><div class="ex-name">Incline Dumbbell Press</div><div class="ex-note">30–45° angle, builds upper chest shelf</div></td><td class="ex-sets">3 × 10</td></tr>
+          <tr><td><div class="ex-name">Cable Chest Fly</div><div class="ex-note">Keep slight elbow bend, feel the stretch</div></td><td class="ex-sets">3 × 12</td></tr>
+          <tr><td><div class="ex-name">Tricep Pushdown (Rope)</div><div class="ex-note">Flare rope at bottom, full extension</div></td><td class="ex-sets">3 × 12</td></tr>
+          <tr><td><div class="ex-name">Overhead Tricep Extension</div><div class="ex-note">Long head emphasis — key for arm size</div></td><td class="ex-sets">3 × 12</td></tr>
+          <tr><td><div class="ex-name">Plank</div><div class="ex-note">Straight line head-to-heel, brace abs</div><span class="ex-tag green">CORE</span></td><td class="ex-sets">3 × 45s</td></tr>
+          <tr><td><div class="ex-name">Ab Wheel Rollout</div><div class="ex-note">Control the rollout, don't collapse hips</div><span class="ex-tag green">CORE</span></td><td class="ex-sets">3 × 8–10</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Day 3 Rest -->
+  <div class="card" style="border-left: 3px solid var(--accent2); border-radius: 0 12px 12px 0;">
+    <div class="card-subtitle" style="color:var(--accent2)">Wednesday</div>
+    <div class="card-title">REST / ACTIVE RECOVERY</div>
+    <p>Light walk, stretching, or yoga. Use this day to recover. Avoid heavy training. This is when your muscles actually grow.</p>
+  </div>
+
+  <!-- Day 4 -->
+  <div class="day-card" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-name">THURSDAY</div>
+        <div class="day-focus">Shoulders · Arms · Pull-Up Work</div>
+      </div>
+      <div class="day-chevron">▾</div>
+    </div>
+    <div class="day-body">
+      <span class="badge badge-orange" style="margin-bottom:10px;display:inline-block">🔥 Shoulder &amp; Arm Priority</span>
+      <table class="ex-table">
+        <thead><tr><th>Exercise</th><th>Sets × Reps</th></tr></thead>
+        <tbody>
+          <tr><td><div class="ex-name">Seated DB Overhead Press</div><div class="ex-note">Full overhead lockout, don't flare elbows</div><span class="ex-tag">KEY MOVE</span></td><td class="ex-sets">4 × 8–10</td></tr>
+          <tr><td><div class="ex-name">Lateral Raise</div><div class="ex-note">Slight lean forward, lead with elbow</div></td><td class="ex-sets">4 × 12–15</td></tr>
+          <tr><td><div class="ex-name">Front Plate Raise</div><div class="ex-note">To eye level, controlled descent</div></td><td class="ex-sets">3 × 12</td></tr>
+          <tr><td><div class="ex-name">Rear Delt Fly (bent over)</div><div class="ex-note">Unlocks the 3D shoulder look</div></td><td class="ex-sets">3 × 15</td></tr>
+          <tr><td><div class="ex-name">EZ-Bar or DB Curl (superset)</div><div class="ex-note">Pair with tricep pushdown for pump</div></td><td class="ex-sets">3 × 10</td></tr>
+          <tr><td><div class="ex-name">Tricep Dip (machine or bars)</div><div class="ex-note">Upright torso = more tricep activation</div></td><td class="ex-sets">3 × 10–12</td></tr>
+          <tr><td><div class="ex-name">Negative Pull-Ups</div><div class="ex-note">Jump to top, lower yourself in 5–6 sec</div><span class="ex-tag">PULL-UP BUILDER</span></td><td class="ex-sets">3 × 5–6</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Day 5 -->
+  <div class="day-card" onclick="toggleDay(this)">
+    <div class="day-header">
+      <div>
+        <div class="day-name">FRIDAY</div>
+        <div class="day-focus">Legs · Core · Power</div>
+      </div>
+      <div class="day-chevron">▾</div>
+    </div>
+    <div class="day-body">
+      <span class="badge badge-green" style="margin-bottom:10px;display:inline-block">🦵 Leg Day — Don't Skip It</span>
+      <table class="ex-table">
+        <thead><tr><th>Exercise</th><th>Sets × Reps</th></tr></thead>
+        <tbody>
+          <tr><td><div class="ex-name">Barbell Back Squat</div><div class="ex-note">Below parallel if knees allow, drive up through heels</div><span class="ex-tag">KEY MOVE</span></td><td class="ex-sets">4 × 8</td></tr>
+          <tr><td><div class="ex-name">Romanian Deadlift (RDL)</div><div class="ex-note">Hamstring stretch at bottom, hip hinge</div><span class="ex-tag">KEY MOVE</span></td><td class="ex-sets">3 × 10</td></tr>
+          <tr><td><div class="ex-name">Leg Press</div><div class="ex-note">High foot placement for glutes/hamstrings</div></td><td class="ex-sets">3 × 12</td></tr>
+          <tr><td><div class="ex-name">Walking Lunges</div><div class="ex-note">Dumbbells in hand, knee doesn't touch ground</div></td><td class="ex-sets">3 × 12/leg</td></tr>
+          <tr><td><div class="ex-name">Leg Curl (machine)</div><div class="ex-note">Curl all the way, hold 1 sec at top</div></td><td class="ex-sets">3 × 12</td></tr>
+          <tr><td><div class="ex-name">Standing Calf Raise</div><div class="ex-note">Full range — pause at top and bottom</div></td><td class="ex-sets">4 × 15</td></tr>
+          <tr><td><div class="ex-name">Hanging Knee/Leg Raise</div><div class="ex-note">Dead hang, raise knees to chest, control down</div><span class="ex-tag green">CORE</span></td><td class="ex-sets">3 × 12–15</td></tr>
+          <tr><td><div class="ex-name">Cable Woodchop</div><div class="ex-note">Rotational core power — great for pickleball</div><span class="ex-tag green">CORE</span></td><td class="ex-sets">3 × 12/side</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== PULL-UPS ========== -->
+<div id="pullups" class="section">
+  <p class="section-title">PULL-UP PROGRAM</p>
+  <p class="section-intro">Going from 1–2 pull-ups to 10+ in 12 weeks is very achievable. The strategy: build strength with assisted variations, use negatives to build raw pulling power, and practice frequency without overtraining.</p>
+
+  <div class="card" style="border-left:3px solid var(--accent);border-radius:0 12px 12px 0;margin-bottom:20px">
+    <div class="card-subtitle">The Core Principle</div>
+    <div class="card-title">3 Movements That Build Pull-Ups</div>
+    <p>① <strong style="color:var(--text)">Band-Assisted Pull-Ups</strong> — builds the pattern and volume safely<br><br>
+    ② <strong style="color:var(--text)">Negative Pull-Ups</strong> — builds raw eccentric strength the fastest<br><br>
+    ③ <strong style="color:var(--text)">Lat Pulldown</strong> — strengthens the same muscles with controllable load</p>
+  </div>
+
+  <div class="progress-week" data-week="1–2">
+    <div class="week-label">WEEKS 1–2 · Foundation</div>
+    <div class="week-goal">Goal: Learn the movement, build grip &amp; lat awareness</div>
+    <div class="week-drills">
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Dead Hangs: 3 sets × 20–30 sec <span>(every gym session)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Band-Assisted Pull-Ups: 3 × 5 reps <span>(use a thick resistance band)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Lat Pulldown: 3 × 12 reps <span>(moderate weight, full range)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Scapular Pull-Ups: 3 × 10 <span>(hang, depress shoulder blades without bending elbows)</span></div></div>
+    </div>
+  </div>
+
+  <div class="progress-week" data-week="3–4">
+    <div class="week-label">WEEKS 3–4 · Negatives Begin</div>
+    <div class="week-goal">Goal: Start negative pull-ups, reduce band assistance</div>
+    <div class="week-drills">
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Dead Hangs: 3 × 30 sec</div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Band-Assisted Pull-Ups: 4 × 6 reps <span>(use a thinner band than week 1)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Negative Pull-Ups: 3 × 4 reps <span>(5–6 sec descent, jump to get to top)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Lat Pulldown: 3 × 10 <span>(add weight compared to week 1–2)</span></div></div>
+    </div>
+  </div>
+
+  <div class="progress-week" data-week="5–6">
+    <div class="week-label">WEEKS 5–6 · First Unassisted Reps</div>
+    <div class="week-goal">Goal: Achieve 3–5 unassisted pull-ups</div>
+    <div class="week-drills">
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Unassisted Pull-Ups: Max effort × 3 sets <span>(even if it's only 2–3 reps, that's progress)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Band-Assisted Pull-Ups: 3 × 8 <span>(light band, for volume)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Negative Pull-Ups: 3 × 5 reps <span>(aim for 6–8 sec descent)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Add weight to lat pulldown by 5–10 lbs</div></div>
+    </div>
+  </div>
+
+  <div class="progress-week" data-week="7–9">
+    <div class="week-label">WEEKS 7–9 · Volume Build</div>
+    <div class="week-goal">Goal: Reach 6–8 unassisted pull-ups</div>
+    <div class="week-drills">
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Greasing the Groove: 3–4 sets of pull-ups spread throughout the day <span>(never go to failure — stop 2 reps short)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Gym: 4 sets of pull-ups, max clean reps</div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Negative Pull-Ups: 3 × 6 <span>(very slow descent, 8–10 sec)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Consider getting a doorframe pull-up bar for home practice</div></div>
+    </div>
+  </div>
+
+  <div class="progress-week" data-week="10–12">
+    <div class="week-label">WEEKS 10–12 · 10+ Pull-Ups</div>
+    <div class="week-goal">Goal: Hit 10 clean pull-ups in a row</div>
+    <div class="week-drills">
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Pull-Up Clusters: 10 sets of 1–2 reps with 30s rest <span>(accumulates volume without fatigue)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Test max rep sets every 2 weeks — track your progress</div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Add a 5–10 lb weight belt for 3 × 3 weighted pull-ups <span>(makes bodyweight feel easier)</span></div></div>
+      <div class="drill-item"><div class="drill-bullet"></div><div class="drill-text">Keep negatives in rotation for continued strength gains</div></div>
+    </div>
+  </div>
+
+  <div class="tip-card" style="margin-top:4px">
+    <div class="tip-title">⚡ Grip Matters</div>
+    <div class="tip-body">Use a <strong>shoulder-width overhand grip</strong> (pronated). Don't let your elbows flare forward at the top. Think "elbows to hips" as you pull. This maximizes lat engagement and protects your rotator cuff.</div>
+  </div>
+</div>
+
+<!-- ========== NUTRITION ========== -->
+<div id="nutrition" class="section">
+  <p class="section-title">NUTRITION PLAN</p>
+  <p class="section-intro">You don't need a radical diet overhaul — your eating habits are already solid. These are targeted adjustments to support muscle growth while trimming body fat.</p>
+
+  <div class="calorie-display">
+    <div class="calorie-number">2,400</div>
+    <div class="calorie-label">Target Calories / Day</div>
+    <div class="calorie-note">Slight deficit from your ~2,700 TDEE. Enough to build muscle and lose fat simultaneously at your activity level.</div>
+  </div>
+
+  <div class="macro-row">
+    <div class="macro-card protein">
+      <div class="macro-value">190</div>
+      <div class="macro-unit">g / day</div>
+      <div class="macro-label">Protein</div>
+    </div>
+    <div class="macro-card carbs">
+      <div class="macro-value">240</div>
+      <div class="macro-unit">g / day</div>
+      <div class="macro-label">Carbs</div>
+    </div>
+    <div class="macro-card fat">
+      <div class="macro-value">75</div>
+      <div class="macro-unit">g / day</div>
+      <div class="macro-label">Fat</div>
+    </div>
+  </div>
+
+  <div class="meal-block">
+    <div class="meal-time">Meal 1 · 7:00 AM</div>
+    <div class="meal-title">HIGH-PROTEIN BREAKFAST</div>
+    <ul class="food-list">
+      <li>4–5 egg whites + 2 whole eggs (scrambled or omelet)</li>
+      <li>½ cup oats with berries (blueberries, strawberries)</li>
+      <li>Black coffee or green tea</li>
+      <li>Optional: 1 scoop protein powder mixed in oats</li>
+    </ul>
+  </div>
+
+  <div class="meal-block">
+    <div class="meal-time">Pre-Workout · 30–45 min Before Gym</div>
+    <div class="meal-title">ENERGY &amp; PERFORMANCE</div>
+    <ul class="food-list">
+      <li>1 banana or apple (fast carbs for energy)</li>
+      <li>1 scoop whey protein in water or a Greek yogurt</li>
+      <li>Optional: black coffee or pre-workout (caffeine-based)</li>
+    </ul>
+  </div>
+
+  <div class="meal-block">
+    <div class="meal-time">Post-Workout · Within 30–60 min</div>
+    <div class="meal-title">RECOVERY MEAL</div>
+    <ul class="food-list">
+      <li>1–1.5 cups cooked rice, quinoa, or sweet potato</li>
+      <li>5–7 oz grilled chicken breast, salmon, or lean beef</li>
+      <li>Large handful of greens or roasted veggies</li>
+      <li>Optional: 1 tbsp olive oil drizzled over veggies</li>
+    </ul>
+  </div>
+
+  <div class="meal-block">
+    <div class="meal-time">Meal 3 · ~2:00 PM</div>
+    <div class="meal-title">MIDDAY PROTEIN HIT</div>
+    <ul class="food-list">
+      <li>Turkey or chicken wrap in a whole wheat tortilla</li>
+      <li>Leafy greens, tomato, avocado</li>
+      <li>1 oz mixed nuts or a string cheese</li>
+      <li>1–2 cups water (prioritize hydration at your desk)</li>
+    </ul>
+  </div>
+
+  <div class="meal-block">
+    <div class="meal-time">Meal 4 · ~7:00 PM</div>
+    <div class="meal-title">BALANCED DINNER</div>
+    <ul class="food-list">
+      <li>6–8 oz lean protein: salmon, turkey, sirloin steak, shrimp</li>
+      <li>Large vegetable serving: broccoli, asparagus, Brussels sprouts, bell peppers</li>
+      <li>½ cup legumes or a small serving of complex carbs</li>
+      <li>Olive oil, lemon, garlic for seasoning</li>
+    </ul>
+  </div>
+
+  <div class="meal-block">
+    <div class="meal-time">Optional · Evening Snack</div>
+    <div class="meal-title">SLOW-RELEASE PROTEIN</div>
+    <ul class="food-list">
+      <li>1 cup cottage cheese or Greek yogurt (casein protein)</li>
+      <li>Handful of walnuts or almonds</li>
+      <li>Works while you sleep to preserve muscle</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+  <div class="card">
+    <div class="card-subtitle">Supplements Worth Considering</div>
+    <div class="card-title">🧪 Simple Stack</div>
+    <p>
+      <strong style="color:var(--text)">Creatine Monohydrate</strong> — 5g daily. The most research-backed supplement for strength &amp; muscle. Take anytime, consistency matters.<br><br>
+      <strong style="color:var(--text)">Whey Protein</strong> — Only if you're struggling to hit 190g protein from food. Supplement, don't replace.<br><br>
+      <strong style="color:var(--text)">Vitamin D3 + K2</strong> — Especially important with a sedentary desk job (limited sun). Supports testosterone and bone health.<br><br>
+      <strong style="color:var(--text)">Fish Oil (Omega-3)</strong> — 1–2g EPA/DHA daily. Reduces inflammation and supports joint health at 48.<br><br>
+      <strong style="color:var(--text)">Magnesium Glycinate</strong> — 300–400mg before bed. Improves sleep quality and muscle recovery.
+    </p>
+  </div>
+</div>
+
+<!-- ========== TIPS ========== -->
+<div id="tips" class="section">
+  <p class="section-title">PRO TIPS</p>
+  <p class="section-intro">The difference between good results and great results is often these overlooked details.</p>
+
+  <div class="tip-card">
+    <div class="tip-title">😴 Sleep Is Your Anabolic Window</div>
+    <div class="tip-body">At 48, <strong>sleep quality directly impacts testosterone and recovery</strong>. Aim for 7–8 hours. Poor sleep is the #1 reason men over 40 plateau in the gym. Keep a consistent bedtime — even on weekends. Your magnesium and no-screen-before-bed habits will pay more dividends than any supplement.</div>
+  </div>
+
+  <div class="tip-card blue">
+    <div class="tip-title">🪑 Beat the Desk Job</div>
+    <div class="tip-body">Sitting 7–8 hours compresses your hip flexors and weakens your glutes, which directly limits squat depth and lower back health. Do this: <strong>stand or walk for 5 minutes every hour</strong>. Set a timer. Do 10 bodyweight squats or hip circles at your desk. This will dramatically improve your leg day performance and reduce lower-back tightness.</div>
+  </div>
+
+  <div class="tip-card green">
+    <div class="tip-title">📈 Progressive Overload is Everything</div>
+    <div class="tip-body">If you lift the same weights every week, nothing changes. <strong>Track your lifts in a notes app.</strong> Each week, try to add 2.5–5 lbs OR do one more rep. Small consistent increases compound dramatically over months. This single habit separates people who transform their bodies from those who plateau.</div>
+  </div>
+
+  <div class="tip-card">
+    <div class="tip-title">💧 Hydration at Your Desk</div>
+    <div class="tip-body">Keep a <strong>32 oz water bottle at your desk</strong> and finish two of them by the end of the work day. Dehydration kills strength and muscle-protein synthesis. Add electrolytes (a pinch of salt + a squeeze of lemon) if you sweat heavily during workouts.</div>
+  </div>
+
+  <div class="tip-card blue">
+    <div class="tip-title">🥒 Pickleball is an Underrated Asset</div>
+    <div class="tip-body">Don't underestimate weekend pickleball. It burns 400–600 calories/hour, trains rotational core strength, and <strong>keeps you active without feeling like exercise</strong>. The cable woodchop in your Friday workout directly transfers to pickleball power. Keep it — it's a long-term lifestyle habit that protects your heart health.</div>
+  </div>
+
+  <div class="tip-card green">
+    <div class="tip-title">🧬 Recovery at 48 vs 28</div>
+    <div class="tip-body">Your muscles still respond very well to training, but <strong>recovery takes a day longer</strong> than it did in your 20s. This is why the 4-day program with built-in rest is ideal. Don't be tempted to add a 5th heavy day. The Wednesday rest day and Sunday dog walk are part of the program — not gaps in it.</div>
+  </div>
+
+  <div class="tip-card">
+    <div class="tip-title">📅 The 12-Week Check-In</div>
+    <div class="tip-body">After 12 weeks, reassess: <strong>how many pull-ups can you do? How do your pants fit?</strong> Take a photo on day 1 and day 84 — the mirror lies, photos don't. If you've been consistent with training and nutrition, you should see 6–10 lbs of fat loss, noticeable shoulder and arm definition, and meaningful leg strength gains. Adjust the plan from there.</div>
+  </div>
+
+  <div class="card" style="margin-top:8px">
+    <div class="card-subtitle">One More Thing</div>
+    <div class="card-title">🔑 Consistency Over Perfection</div>
+    <p>Missing one workout doesn't matter. Missing 3 in a row starts to. Life happens — travel, illness, stress. The rule: <strong>never miss twice in a row</strong>. A mediocre workout done is infinitely better than a perfect workout skipped. You already have the discipline — you go to the gym 4 times a week and take the dogs out on weekends. That foundation is everything. Now it's just about directing it smarter.</p>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function toggleDay(card) {
+  card.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>
